@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Vipedeaf — Booking Seats</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* small custom styles for perfect circular seats & scrollbar */
+      .seat {
+        width: 34px;
+        height: 34px;
+        line-height: 34px;
+        border-radius: 9999px;
+        display: inline-block;
+        text-align: center;
+        cursor: pointer;
+        user-select: none;
+      }
+      .seat.disabled {
+        opacity: 0.28;
+        cursor: not-allowed;
+      }
+      .row-label {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        font-weight: 600;
+      }
+      /* small scrollbar for grid */
+      .seats-wrap::-webkit-scrollbar {
+        height: 10px;
+      }
+      .seats-wrap::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.12);
+        border-radius: 9999px;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-800">
+    <!-- Header -->
+    <header class="bg-white shadow sticky top-0 z-30">
+      <div
+        class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-3">
+          <div
+            class="w-9 h-9 bg-purple-600 text-white rounded flex items-center justify-center font-bold"
+          >
+            V
+          </div>
+          <div class="text-lg font-semibold">Vipedeaf</div>
+        </div>
+        <div class="text-sm text-gray-600">
+          Deaf Talent Show — Seat selection
+        </div>
+      </div>
+    </header>
+
+    <main
+      class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-4 gap-8"
+    >
+      <!-- Left: price list / controls -->
+      <aside class="lg:col-span-1 bg-white p-5 rounded-lg shadow-sm">
+        <h3 class="font-semibold text-lg mb-2">Select Category</h3>
+        <p class="text-sm text-gray-600 mb-4">
+          Click seats to select (min 1, max 10). Rows are labelled A → T. Seat
+          numbers 1→30.
+        </p>
+
+        <div class="space-y-3">
+          <!-- legend items -->
+          <div id="legend" class="space-y-2">
+            <!-- filled by JS -->
+          </div>
+        </div>
+
+        <div class="mt-6 text-sm text-gray-600">
+          <div>
+            <strong>Selected:</strong> <span id="selectedCount">0</span>
+          </div>
+          <div class="mt-1">
+            <strong>Total:</strong> ₹<span id="selectedTotal">0</span>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <button
+            id="resetBtn"
+            class="w-full border rounded-md px-3 py-2 text-sm"
+          >
+            Reset selection
+          </button>
+        </div>
+      </aside>
+
+      <!-- Center & Right: seat map area -->
+      <section class="lg:col-span-3 bg-white p-5 rounded-lg shadow-sm">
+        <!-- top heading -->
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-2xl font-bold">Seat Map — Deaf Talent Show</h2>
+            <p class="text-sm text-gray-500">
+              Rows A–T (20 rows) • 30 seats per row
+            </p>
+          </div>
+          <div class="text-sm text-gray-600">
+            Choose up to <span class="font-semibold">10</span> seats
+          </div>
+        </div>
+
+        <!-- seats container: show left row labels & grid -->
+        <div class="flex gap-4">
+          <!-- left panel with row labels (vertical) for large screens -->
+          <div class="hidden lg:block w-10">
+            <div class="h-6"></div>
+            <div class="flex flex-col items-center gap-2">
+              <!-- JS will inject labels -->
+            </div>
+          </div>
+
+          <!-- seat grid with horizontal scroll if needed -->
+          <div class="flex-1 overflow-x-auto seats-wrap">
+            <div id="seatGrid" class="inline-block min-w-[900px]">
+              <!-- JS will populate seat rows here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- legend + note -->
+        <div
+          class="mt-6 flex items-center justify-between text-sm text-gray-600"
+        >
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+              <span
+                class="w-3 h-3 inline-block rounded-full bg-white border"
+              ></span>
+              Available
+            </div>
+            <div class="flex items-center gap-2">
+              <span
+                class="w-3 h-3 inline-block rounded-full bg-purple-600"
+              ></span>
+              Selected
+            </div>
+            <div class="flex items-center gap-2">
+              <span
+                class="w-3 h-3 inline-block rounded-full bg-gray-200"
+              ></span>
+              Unavailable
+            </div>
+          </div>
+          <div>
+            Rows: <strong>A</strong> (front) → <strong>T</strong> (back)
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom bar (sticky) -->
+    <div
+      class="fixed left-0 right-0 bottom-4 z-40 flex justify-center pointer-events-none"
+    >
+      <div
+        class="bg-white w-[min(980px,96%)] rounded-lg shadow-lg pointer-events-auto flex items-center justify-between px-4 py-3"
+      >
+        <div>
+          <div class="text-sm text-gray-500">
+            ₹ <span id="bottomPrice">0</span> onwards
+          </div>
+          <div class="font-semibold text-lg" id="bottomSummary">
+            No seats selected
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <div class="text-sm text-gray-600">
+            Selected: <span id="bottomCount">0</span>
+          </div>
+          <button
+            id="proceedBtn"
+            class="bg-gray-400 cursor-not-allowed text-white px-4 py-2 rounded-lg"
+          >
+            Proceed
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirmation modal (hidden by default) -->
+    <div
+      id="confirmModal"
+      class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40"
+    >
+      <div class="bg-white rounded-lg max-w-md w-full p-6">
+        <h3 class="text-lg font-semibold mb-4">Confirm Booking</h3>
+        <div id="confirmContent" class="text-sm text-gray-700 mb-4">
+          <!-- filled by JS -->
+        </div>
+        <div class="flex justify-end gap-3">
+          <button id="closeModal" class="px-3 py-2 border rounded">
+            Cancel
+          </button>
+          <button
+            onclick="location.href='payment.html'"
+            id="confirmBooking"
+            class="px-4 py-2 bg-purple-600 text-white rounded"
+          >
+            Confirm & Pay
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* Seat map generator + interaction */
+      /* Pricing map per row groups (user confirmed) */
+      const priceByRowRange = [
+        { from: "A", to: "C", price: 299 },
+        { from: "D", to: "F", price: 399 },
+        { from: "G", to: "I", price: 499 },
+        { from: "J", to: "L", price: 749 },
+        { from: "M", to: "N", price: 999 },
+        { from: "O", to: "P", price: 1199 },
+        { from: "Q", to: "R", price: 1499 },
+        { from: "S", to: "T", price: 1799 },
+      ];
+
+      // derived helpers
+      const rows = [];
+      for (let i = 0; i < 20; i++) {
+        rows.push(String.fromCharCode("A".charCodeAt(0) + i)); // A..T
+      }
+      const cols = 30; // 1..30
+
+      // simple color palette for categories
+      const colorPalette = [
+        "#E9E8FF",
+        "#E5F7FF",
+        "#FFF1E6",
+        "#FFF0F6",
+        "#F0F5FF",
+        "#F3E9FF",
+        "#E9FFFA",
+        "#FFF7E6",
+      ];
+
+      // map rows to price & color
+      const rowConfig = {};
+      let idx = 0;
+      for (const r of rows) {
+        // find price entry
+        const p = priceByRowRange.find((pr) => r >= pr.from && r <= pr.to);
+        rowConfig[r] = {
+          price: p ? p.price : 0,
+          color: colorPalette[idx % colorPalette.length],
+        };
+        // increment index when end of a range reached
+        const rangeIndex = priceByRowRange.findIndex(
+          (pr) => r >= pr.from && r <= pr.to
+        );
+        idx = rangeIndex === -1 ? idx + 1 : rangeIndex;
+      }
+
+      // Build legend HTML
+      const legendEl = document.getElementById("legend");
+      priceByRowRange.forEach((pr, i) => {
+        const div = document.createElement("div");
+        div.className = "flex items-center gap-3";
+        const color = colorPalette[i % colorPalette.length];
+        div.innerHTML = `
+    <div class="w-3 h-3 rounded-full" style="background:${color}; border:1px solid rgba(0,0,0,0.08)"></div>
+    <div class="text-sm w-24 font-medium">${pr.from}–${pr.to}</div>
+    <div class="text-sm text-gray-600">₹${pr.price}</div>
+  `;
+        legendEl.appendChild(div);
+      });
+
+      // Create seat grid
+      const seatGrid = document.getElementById("seatGrid");
+
+      // top header numbers row
+      const topRow = document.createElement("div");
+      topRow.className = "flex items-center gap-2 mb-2 pl-14";
+      topRow.innerHTML = '<div style="width:70px"></div>'; // spacer for row labels
+      for (let c = 1; c <= cols; c++) {
+        const num = document.createElement("div");
+        num.className = "text-xs text-gray-600 w-9 text-center";
+        num.textContent = c;
+        topRow.appendChild(num);
+      }
+      seatGrid.appendChild(topRow);
+
+      // rows
+      for (const r of rows) {
+        const rowWrap = document.createElement("div");
+        rowWrap.className = "flex items-center gap-2 mb-2";
+
+        // row label
+        const label = document.createElement("div");
+        label.className = "w-14 text-sm font-medium";
+        label.textContent = r;
+        rowWrap.appendChild(label);
+
+        // seats
+        for (let c = 1; c <= cols; c++) {
+          const seatBtn = document.createElement("button");
+          seatBtn.className = "seat border text-xs bg-white";
+          seatBtn.dataset.row = r;
+          seatBtn.dataset.col = c;
+          seatBtn.dataset.price = rowConfig[r].price;
+          seatBtn.dataset.state = "available"; // available / selected / disabled
+          seatBtn.style.borderColor = "rgba(0,0,0,0.08)";
+          seatBtn.style.marginRight = "6px";
+          seatBtn.style.background = rowConfig[r].color;
+          seatBtn.textContent = c;
+
+          // simulate some unavailable seats: simple deterministic pattern (for demo)
+          // make every 11th seat unavailable to mimic sold seats
+          if ((c + r.charCodeAt(0)) % 11 === 0) {
+            seatBtn.classList.add("disabled");
+            seatBtn.dataset.state = "disabled";
+            seatBtn.style.background = "#E6E6E6";
+            seatBtn.style.borderColor = "rgba(0,0,0,0.06)";
+            seatBtn.style.color = "#9CA3AF";
+          }
+
+          rowWrap.appendChild(seatBtn);
+        }
+        seatGrid.appendChild(rowWrap);
+      }
+
+      // selection logic
+      const MAX_SELECT = 10;
+      let selected = []; // array of {row,col,price,el}
+      const selectedCountEl = document.getElementById("selectedCount");
+      const selectedTotalEl = document.getElementById("selectedTotal");
+      const bottomCount = document.getElementById("bottomCount");
+      const bottomPrice = document.getElementById("bottomPrice");
+      const bottomSummary = document.getElementById("bottomSummary");
+      const proceedBtn = document.getElementById("proceedBtn");
+      const bottomSummaryText = document.getElementById("bottomSummary");
+
+      function updateBottom() {
+        const count = selected.length;
+        const total = selected.reduce((s, x) => s + x.price, 0);
+        selectedCountEl.textContent = count;
+        selectedTotalEl.textContent = total;
+        bottomCount.textContent = count;
+        bottomPrice.textContent =
+          total || Math.min(...priceByRowRange.map((p) => p.price));
+        bottomSummaryText.textContent = count
+          ? `${count} seat(s) — ₹${total}`
+          : "No seats selected";
+        if (count > 0) {
+          proceedBtn.classList.remove("bg-gray-400", "cursor-not-allowed");
+          proceedBtn.classList.add(
+            "bg-purple-600",
+            "hover:bg-purple-700",
+            "cursor-pointer"
+          );
+        } else {
+          proceedBtn.classList.add("bg-gray-400", "cursor-not-allowed");
+          proceedBtn.classList.remove(
+            "bg-purple-600",
+            "hover:bg-purple-700",
+            "cursor-pointer"
+          );
+        }
+      }
+
+      // click handlers (event delegation)
+      seatGrid.addEventListener("click", (ev) => {
+        const btn = ev.target.closest(".seat");
+        if (!btn) return;
+        if (btn.dataset.state === "disabled") return;
+        const row = btn.dataset.row;
+        const col = btn.dataset.col;
+        const price = Number(btn.dataset.price);
+
+        // if already selected -> deselect
+        if (btn.dataset.state === "selected") {
+          btn.dataset.state = "available";
+          btn.style.boxShadow = "none";
+          btn.style.borderColor = "rgba(0,0,0,0.08)";
+          btn.style.background = rowConfig[row].color;
+          // remove from selected array
+          selected = selected.filter((s) => !(s.row === row && s.col === col));
+          updateBottom();
+          return;
+        }
+
+        // selecting
+        if (selected.length >= MAX_SELECT) {
+          alert(`Maximum ${MAX_SELECT} seats can be selected`);
+          return;
+        }
+        btn.dataset.state = "selected";
+        btn.style.boxShadow = "0 6px 18px rgba(111,66,193,0.16)";
+        btn.style.borderColor = "rgba(111,66,193,1)";
+        btn.style.background = "#6f42c1"; // purple
+        btn.style.color = "white";
+        selected.push({ row, col, price, el: btn });
+        updateBottom();
+      });
+
+      // reset
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        selected.forEach((s) => {
+          s.el.dataset.state = "available";
+          s.el.style.boxShadow = "none";
+          s.el.style.borderColor = "rgba(0,0,0,0.08)";
+          s.el.style.background = rowConfig[s.row].color;
+          s.el.style.color = "inherit";
+        });
+        selected = [];
+        updateBottom();
+      });
+
+      // proceed modal
+      const confirmModal = document.getElementById("confirmModal");
+      const confirmContent = document.getElementById("confirmContent");
+      const closeModal = document.getElementById("closeModal");
+      const confirmBooking = document.getElementById("confirmBooking");
+
+      proceedBtn.addEventListener("click", () => {
+        if (selected.length === 0) return;
+        // build summary
+        const seatsText = selected.map((s) => `${s.row}${s.col}`).join(", ");
+        const total = selected.reduce((s, x) => s + x.price, 0);
+        confirmContent.innerHTML = `
+    <div><strong>Seats:</strong> ${seatsText}</div>
+    <div class="mt-2"><strong>Count:</strong> ${selected.length}</div>
+    <div class="mt-2"><strong>Total:</strong> ₹${total}</div>
+    <div class="mt-3 text-sm text-gray-500">Minimum 1, Maximum 10 seats per booking.</div>
+  `;
+        confirmModal.classList.remove("hidden");
+        confirmModal.classList.add("flex");
+      });
+
+      // close
+      closeModal.addEventListener("click", () => {
+        confirmModal.classList.add("hidden");
+        confirmModal.classList.remove("flex");
+      });
+
+      // confirm (dummy)
+      confirmBooking.addEventListener("click", () => {
+        const seatsText = selected.map((s) => `${s.row}${s.col}`).join(", ");
+        const total = selected.reduce((s, x) => s + x.price, 0);
+        alert(
+          `Booking confirmed!\nSeats: ${seatsText}\nTotal: ₹${total}\n\n(Replace this with real payment flow.)`
+        );
+        // after confirm, mark seats as disabled (simulate sold)
+        selected.forEach((s) => {
+          s.el.dataset.state = "disabled";
+          s.el.classList.add("disabled");
+          s.el.style.background = "#E6E6E6";
+          s.el.style.color = "#9CA3AF";
+          s.el.style.boxShadow = "none";
+        });
+        selected = [];
+        updateBottom();
+        confirmModal.classList.add("hidden");
+        confirmModal.classList.remove("flex");
+      });
+
+      // initial update
+      updateBottom();
+    </script>
+  </body>
+</html>

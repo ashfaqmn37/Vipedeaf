@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vendor Dashboard - Vipedeaf</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-gray-100">
+    <!-- NAVBAR -->
+    <header class="bg-white shadow-sm">
+      <div
+        class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between"
+      >
+        <div class="flex items-center gap-2">
+          <div class="bg-purple-600 text-white font-bold px-2 py-1 rounded">
+            V
+          </div>
+          <span class="font-semibold text-lg">Vipedeaf Vendor</span>
+        </div>
+        <button
+          onclick="logout()"
+          class="text-sm text-red-600 hover:text-red-800"
+        >
+          Logout
+        </button>
+      </div>
+    </header>
+
+    <div class="flex mt-6 max-w-7xl mx-auto">
+      <!-- SIDEBAR -->
+      <aside class="w-60 bg-white shadow rounded-lg p-4 h-fit">
+        <nav class="space-y-2 text-sm">
+          <button
+            class="block w-full text-left py-2 px-3 rounded bg-purple-600 text-white"
+          >
+            Dashboard
+          </button>
+          <button
+            class="block w-full text-left py-2 px-3 hover:bg-gray-200"
+            onclick="showEdit()"
+          >
+            Edit Event Details
+          </button>
+          <a
+            href="vendor-banner.html"
+            class="block w-full text-left py-2 px-3 hover:bg-gray-200"
+            >Change Hero Banner</a
+          >
+
+          <button
+            class="block w-full text-left py-2 px-3 hover:bg-gray-200"
+            onclick="showPrice()"
+          >
+            Update Ticket Price
+          </button>
+        </nav>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main class="flex-1 ml-6">
+        <!-- EVENT CARD -->
+        <div class="bg-white shadow rounded-lg p-6">
+          <h2 class="text-xl font-semibold mb-4">Your Event</h2>
+
+          <img
+            id="heroPreview"
+            class="w-full h-56 object-cover rounded-lg mb-4"
+            src=""
+          />
+
+          <table class="text-sm w-full">
+            <tbody>
+              <tr>
+                <td class="font-medium py-1">Name</td>
+                <td id="evName"></td>
+              </tr>
+              <tr>
+                <td class="font-medium py-1">Date</td>
+                <td id="evDate"></td>
+              </tr>
+              <tr>
+                <td class="font-medium py-1">Time</td>
+                <td id="evTime"></td>
+              </tr>
+              <tr>
+                <td class="font-medium py-1">Duration</td>
+                <td id="evDuration"></td>
+              </tr>
+              <tr>
+                <td class="font-medium py-1">Language</td>
+                <td id="evLang"></td>
+              </tr>
+              <tr>
+                <td class="font-medium py-1">Category</td>
+                <td id="evCategory"></td>
+              </tr>
+              <tr>
+                <td class="font-medium py-1">Location</td>
+                <td id="evLocation"></td>
+              </tr>
+              <tr>
+                <td class="font-medium py-1">Price</td>
+                <td id="evPrice"></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <button
+            onclick="showEdit()"
+            class="mt-5 bg-purple-600 text-white py-2 px-4 rounded-lg"
+          >
+            Edit Details
+          </button>
+        </div>
+      </main>
+    </div>
+
+    <!-- EDIT MODAL -->
+    <div
+      id="editModal"
+      class="hidden fixed inset-0 bg-black/50 flex justify-center items-center"
+    >
+      <div class="bg-white rounded-lg p-6 w-[400px]">
+        <h3 class="text-lg font-semibold mb-4">Edit Event Details</h3>
+
+        <input id="inpName" class="input" placeholder="Event Name" />
+        <input id="inpDate" class="input" placeholder="Date" />
+        <input id="inpTime" class="input" placeholder="Time" />
+        <input id="inpDuration" class="input" placeholder="Duration" />
+        <input id="inpLang" class="input" placeholder="Language" />
+        <input id="inpCat" class="input" placeholder="Category" />
+        <input id="inpLoc" class="input" placeholder="Location" />
+        <input id="inpPrice" class="input" placeholder="Price" />
+
+        <button onclick="saveDetails()" class="btn-primary w-full mt-4">
+          Save
+        </button>
+        <button onclick="closeEdit()" class="w-full mt-2 text-gray-500">
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <script>
+      function loadData() {
+        document.getElementById("evName").innerText =
+          localStorage.getItem("eventName") || "Not set";
+        document.getElementById("evDate").innerText =
+          localStorage.getItem("eventDate") || "Not set";
+        document.getElementById("evTime").innerText =
+          localStorage.getItem("eventTime") || "Not set";
+        document.getElementById("evDuration").innerText =
+          localStorage.getItem("eventDuration") || "Not set";
+        document.getElementById("evLang").innerText =
+          localStorage.getItem("eventLang") || "Not set";
+        document.getElementById("evCategory").innerText =
+          localStorage.getItem("eventCategory") || "Not set";
+        document.getElementById("evLocation").innerText =
+          localStorage.getItem("eventLocation") || "Not set";
+        document.getElementById("evPrice").innerText =
+          localStorage.getItem("eventPrice") || "₹0";
+        document.getElementById("heroPreview").src =
+          localStorage.getItem("eventHeroImage") ||
+          "https://picsum.photos/900/500";
+      }
+      loadData();
+
+      function showEdit() {
+        document.getElementById("editModal").classList.remove("hidden");
+        inpName.value = localStorage.getItem("eventName");
+        inpDate.value = localStorage.getItem("eventDate");
+        inpTime.value = localStorage.getItem("eventTime");
+        inpDuration.value = localStorage.getItem("eventDuration");
+        inpLang.value = localStorage.getItem("eventLang");
+        inpCat.value = localStorage.getItem("eventCategory");
+        inpLoc.value = localStorage.getItem("eventLocation");
+        inpPrice.value = localStorage.getItem("eventPrice");
+      }
+      function closeEdit() {
+        document.getElementById("editModal").classList.add("hidden");
+      }
+      function saveDetails() {
+        localStorage.setItem("eventName", inpName.value);
+        localStorage.setItem("eventDate", inpDate.value);
+        localStorage.setItem("eventTime", inpTime.value);
+        localStorage.setItem("eventDuration", inpDuration.value);
+        localStorage.setItem("eventLang", inpLang.value);
+        localStorage.setItem("eventCategory", inpCat.value);
+        localStorage.setItem("eventLocation", inpLoc.value);
+        localStorage.setItem("eventPrice", inpPrice.value);
+        closeEdit();
+        loadData();
+      }
+      function logout() {
+        window.location.href = "vendor-login.html";
+      }
+    </script>
+
+    <style>
+      .input {
+        width: 100%;
+        margin-bottom: 10px;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+      }
+      .btn-primary {
+        background: purple;
+        color: white;
+        padding: 10px;
+        border-radius: 6px;
+      }
+    </style>
+  </body>
+</html>

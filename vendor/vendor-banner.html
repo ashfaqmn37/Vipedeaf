@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Upload Event Banner Slider - Vipedeaf</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+
+  <body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-6 rounded-lg shadow-lg w-[420px]">
+      <h2 class="text-xl font-semibold mb-3 text-center">
+        Upload Event Slider Images
+      </h2>
+
+      <p class="text-xs text-gray-500 text-center mb-4">(Max 6 images)</p>
+
+      <input
+        type="file"
+        id="sliderInput"
+        accept="image/*"
+        multiple
+        class="block w-full border rounded-md px-3 py-2 mb-4"
+      />
+
+      <div id="preview" class="grid grid-cols-3 gap-2 mb-4"></div>
+
+      <button
+        id="saveSlider"
+        class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg font-semibold"
+      >
+        Save Slider
+      </button>
+
+      <button
+        onclick="location.href='vendor-dashboard.html'"
+        class="mt-3 w-full text-center text-gray-600 text-sm hover:text-black"
+      >
+        Back to Dashboard
+      </button>
+    </div>
+
+    <script>
+      const input = document.getElementById("sliderInput");
+      const previewBox = document.getElementById("preview");
+
+      input.addEventListener("change", () => {
+        previewBox.innerHTML = "";
+        [...input.files].slice(0, 6).forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            previewBox.innerHTML += `<img src="${reader.result}" class="h-20 w-full object-cover rounded border" />`;
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+
+      document.getElementById("saveSlider").onclick = () => {
+        const files = [...input.files].slice(0, 6);
+        if (files.length === 0) return alert("Please upload at least 1 image.");
+
+        const images = [];
+
+        let loaded = 0;
+        files.forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            images.push(reader.result);
+            loaded++;
+            if (loaded === files.length) {
+              localStorage.setItem("eventSliderImages", JSON.stringify(images));
+              alert("✅ Slider Images Saved!");
+              window.location.href = "vendor-dashboard.html";
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      };
+    </script>
+  </body>
+</html>

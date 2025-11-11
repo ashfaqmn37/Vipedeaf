@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Vipedeaf — Events & Bookings</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+      /* small visual tweaks */
+      .card-shadow {
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+      }
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 9999px;
+        display: inline-block;
+      }
+      /* hide native scrollbar for horizontal scroller */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 text-gray-800">
+    <!-- HEADER / NAV -->
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+      <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center gap-4">
+            <a href="#" class="flex items-center gap-2">
+              <div
+                class="w-10 h-10 bg-purple-600 text-white rounded flex items-center justify-center font-bold"
+              >
+                V
+              </div>
+              <span class="font-bold text-lg">Vipedeaf</span>
+            </a>
+            <nav
+              class="hidden md:flex items-center gap-6 text-sm text-gray-600"
+            >
+              <a class="hover:text-black" href="index.html">Home</a>
+              <a class="hover:text-gray-900" href="#">Movies</a>
+              <a class="hover:text-gray-900" href="#">Stream</a>
+              <a class="hover:text-gray-900" href="Event.html">Events</a>
+              <a class="hover:text-gray-900" href="vendor/vendor-login.html"
+                >Vendors</a
+              >
+              <a class="hover:text-black" href="bookings.html">Bookings</a>
+              <a class="hover:text-gray-900" href="#">Offers</a>
+            </nav>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <div class="hidden md:block">
+              <input
+                placeholder="Search movies, events..."
+                class="px-3 py-2 border rounded-md w-72 text-sm"
+              />
+            </div>
+
+            <div
+              onclick="location.href='vendor/vendor-login.html'"
+              class="hidden md:flex items-center gap-2"
+            >
+              <button class="text-sm px-3 py-2 rounded-md border">
+                Sign in
+              </button>
+              <button
+                class="bg-purple-600 text-white px-3 py-2 rounded-md text-sm"
+              >
+                Get Started
+              </button>
+            </div>
+
+            <!-- mobile menu button -->
+            <button
+              id="mobileBtn"
+              class="md:hidden p-2 rounded hover:bg-gray-100"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-6 w-6 text-gray-700"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 8h16M4 16h16"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- mobile nav -->
+        <div id="mobileNav" class="md:hidden hidden pb-4">
+          <div class="flex flex-col gap-2 pb-2">
+            <a href="#" class="px-2 py-2 rounded hover:bg-gray-100">Movies</a>
+            <a href="#" class="px-2 py-2 rounded hover:bg-gray-100">Events</a>
+            <a href="#" class="px-2 py-2 rounded hover:bg-gray-100">Vendors</a>
+            <a href="#" class="px-2 py-2 rounded hover:bg-gray-100">Offers</a>
+          </div>
+          <div class="flex gap-2">
+            <button class="flex-1 border rounded px-3 py-2">Sign in</button>
+            <button class="flex-1 bg-purple-600 text-white rounded px-3 py-2">
+              Get Started
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="container mx-auto px-4 py-8">
+      <!-- HERO SLIDER -->
+      <section class="relative">
+        <div id="hero" class="overflow-hidden rounded-xl card-shadow">
+          <div
+            class="flex transition-transform duration-500"
+            style="transform: translateX(0%)"
+          >
+            <!-- three placeholder slides -->
+            <div class="min-w-full">
+              <img
+                src="https://picsum.photos/1200/340?image=1062"
+                alt="hero1"
+                class="w-full h-72 object-cover"
+              />
+            </div>
+            <div class="min-w-full">
+              <img
+                src="https://picsum.photos/1200/340?image=1039"
+                alt="hero2"
+                class="w-full h-72 object-cover"
+              />
+            </div>
+            <div class="min-w-full">
+              <img
+                src="https://picsum.photos/1200/340?image=1043"
+                alt="hero3"
+                class="w-full h-72 object-cover"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- arrows -->
+        <button
+          id="heroPrev"
+          class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow hover:bg-white"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 text-gray-700"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+        </button>
+        <button
+          id="heroNext"
+          class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 p-2 rounded-full shadow hover:bg-white"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6 text-gray-700"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5l7 7-7 7"
+            />
+          </svg>
+        </button>
+
+        <!-- dots -->
+        <div
+          id="heroDots"
+          class="absolute bottom-3 left-1/2 -translate-x-1/2 bg-black/0 px-2 py-1 rounded-md flex gap-2"
+        ></div>
+      </section>
+
+      <!-- Recommended Projects (cards) -->
+      <section class="mt-10">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-semibold">Recommended Movies</h2>
+          <a href="#" class="text-sm text-purple-600 hover:underline"
+            >See All ›</a
+          >
+        </div>
+
+        <div
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"
+        >
+          <!-- card x5 -->
+          <article class="bg-white rounded-xl overflow-hidden card-shadow">
+            <img
+              src="https://picsum.photos/300/420?random=1"
+              class="w-full h-56 object-cover"
+            />
+            <div class="p-4">
+              <div class="flex items-center justify-between">
+                <h3 class="font-semibold">Predator: Badlands</h3>
+                <span class="text-xs bg-red-500 text-white px-2 py-1 rounded"
+                  >PROMOTED</span
+                >
+              </div>
+              <p class="text-sm text-gray-500 mt-2">8.8/10 · 4.7K votes</p>
+              <div class="mt-3 flex gap-2">
+                <button
+                  class="flex-1 bg-purple-600 text-white px-3 py-2 rounded"
+                >
+                  Book
+                </button>
+                <button class="border px-3 py-2 rounded">Details</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="bg-white rounded-xl overflow-hidden card-shadow">
+            <img
+              src="https://picsum.photos/300/420?random=2"
+              class="w-full h-56 object-cover"
+            />
+            <div class="p-4">
+              <h3 class="font-semibold">Abhanga Tukaram</h3>
+              <p class="text-sm text-gray-500 mt-2">9.4/10 · 65+ votes</p>
+              <div class="mt-3 flex gap-2">
+                <button
+                  class="flex-1 bg-purple-600 text-white px-3 py-2 rounded"
+                >
+                  Book
+                </button>
+                <button class="border px-3 py-2 rounded">Details</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="bg-white rounded-xl overflow-hidden card-shadow">
+            <img
+              src="https://picsum.photos/300/420?random=3"
+              class="w-full h-56 object-cover"
+            />
+            <div class="p-4">
+              <h3 class="font-semibold">Haq</h3>
+              <p class="text-sm text-gray-500 mt-2">8.9/10 · 2.7K votes</p>
+              <div class="mt-3 flex gap-2">
+                <button
+                  class="flex-1 bg-purple-600 text-white px-3 py-2 rounded"
+                >
+                  Book
+                </button>
+                <button class="border px-3 py-2 rounded">Details</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="bg-white rounded-xl overflow-hidden card-shadow">
+            <img
+              src="https://picsum.photos/300/420?random=4"
+              class="w-full h-56 object-cover"
+            />
+            <div class="p-4">
+              <h3 class="font-semibold">Laalo</h3>
+              <p class="text-sm text-gray-500 mt-2">9.5/10 · 8.8K votes</p>
+              <div class="mt-3 flex gap-2">
+                <button
+                  class="flex-1 bg-purple-600 text-white px-3 py-2 rounded"
+                >
+                  Book
+                </button>
+                <button class="border px-3 py-2 rounded">Details</button>
+              </div>
+            </div>
+          </article>
+
+          <article class="bg-white rounded-xl overflow-hidden card-shadow">
+            <img
+              src="https://picsum.photos/300/420?random=5"
+              class="w-full h-56 object-cover"
+            />
+            <div class="p-4">
+              <h3 class="font-semibold">The Taj Story</h3>
+              <p class="text-sm text-gray-500 mt-2">9/10 · 10.4K votes</p>
+              <div class="mt-3 flex gap-2">
+                <button
+                  class="flex-1 bg-purple-600 text-white px-3 py-2 rounded"
+                >
+                  Book
+                </button>
+                <button class="border px-3 py-2 rounded">Details</button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Popular Districts (horizontal scroll) -->
+      <section class="mt-12">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-semibold">Popular Districts</h2>
+          <a href="#" class="text-sm text-gray-600 hover:underline"
+            >Explore all</a
+          >
+        </div>
+
+        <div
+          class="overflow-x-auto no-scrollbar snap-x snap-mandatory flex gap-4 pb-4"
+        >
+          <!-- card 1..7 -->
+          <div
+            class="snap-start min-w-[220px] bg-white rounded-xl card-shadow overflow-hidden p-4"
+          >
+            <img
+              src="https://picsum.photos/400/200?random=11"
+              class="rounded-md w-full h-28 object-cover"
+            />
+            <h4 class="mt-3 font-semibold">Mumbai</h4>
+            <p class="text-sm text-gray-500">Events · Movies · Activities</p>
+          </div>
+
+          <div
+            class="snap-start min-w-[220px] bg-white rounded-xl card-shadow overflow-hidden p-4"
+          >
+            <img
+              src="https://picsum.photos/400/200?random=12"
+              class="rounded-md w-full h-28 object-cover"
+            />
+            <h4 class="mt-3 font-semibold">Pune</h4>
+            <p class="text-sm text-gray-500">Concerts · Local shows</p>
+          </div>
+
+          <div
+            class="snap-start min-w-[220px] bg-white rounded-xl card-shadow overflow-hidden p-4"
+          >
+            <img
+              src="https://picsum.photos/400/200?random=13"
+              class="rounded-md w-full h-28 object-cover"
+            />
+            <h4 class="mt-3 font-semibold">Delhi</h4>
+            <p class="text-sm text-gray-500">Festivals · Plays</p>
+          </div>
+
+          <div
+            class="snap-start min-w-[220px] bg-white rounded-xl card-shadow overflow-hidden p-4"
+          >
+            <img
+              src="https://picsum.photos/400/200?random=14"
+              class="rounded-md w-full h-28 object-cover"
+            />
+            <h4 class="mt-3 font-semibold">Bengaluru</h4>
+            <p class="text-sm text-gray-500">Tech meetups · Events</p>
+          </div>
+
+          <div
+            class="snap-start min-w-[220px] bg-white rounded-xl card-shadow overflow-hidden p-4"
+          >
+            <img
+              src="https://picsum.photos/400/200?random=15"
+              class="rounded-md w-full h-28 object-cover"
+            />
+            <h4 class="mt-3 font-semibold">Kolkata</h4>
+            <p class="text-sm text-gray-500">Cultural shows</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Feedback / Testimonials -->
+      <section class="mt-12">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-2xl font-semibold">What people say</h2>
+          <div class="flex gap-2">
+            <button id="testPrev" class="p-2 rounded bg-white card-shadow">
+              ‹
+            </button>
+            <button id="testNext" class="p-2 rounded bg-white card-shadow">
+              ›
+            </button>
+          </div>
+        </div>
+
+        <div id="testimonials" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <blockquote class="bg-white p-6 rounded-xl card-shadow">
+            <div class="flex items-center gap-3">
+              <img
+                class="w-12 h-12 rounded-full object-cover"
+                src="https://picsum.photos/80/80?random=21"
+                alt="user"
+              />
+              <div>
+                <div class="font-semibold">Simran K</div>
+                <div class="text-sm text-gray-500">Mumbai</div>
+              </div>
+            </div>
+            <p class="mt-4 text-gray-700">
+              Great platform — easy booking and lovely vendors. Booked catering
+              for a family function and everything was smooth.
+            </p>
+          </blockquote>
+
+          <blockquote class="bg-white p-6 rounded-xl card-shadow hidden">
+            <div class="flex items-center gap-3">
+              <img
+                class="w-12 h-12 rounded-full object-cover"
+                src="https://picsum.photos/80/80?random=22"
+                alt="user"
+              />
+              <div>
+                <div class="font-semibold">Arjun P</div>
+                <div class="text-sm text-gray-500">Pune</div>
+              </div>
+            </div>
+            <p class="mt-4 text-gray-700">
+              Amazing selection of events. The QR ticket worked perfect at
+              entry. Will use again.
+            </p>
+          </blockquote>
+
+          <blockquote class="bg-white p-6 rounded-xl card-shadow hidden">
+            <div class="flex items-center gap-3">
+              <img
+                class="w-12 h-12 rounded-full object-cover"
+                src="https://picsum.photos/80/80?random=23"
+                alt="user"
+              />
+              <div>
+                <div class="font-semibold">Roshni M</div>
+                <div class="text-sm text-gray-500">Bengaluru</div>
+              </div>
+            </div>
+            <p class="mt-4 text-gray-700">
+              Vendor profiles are well described. Payments were secure and
+              refunds were quick when needed.
+            </p>
+          </blockquote>
+        </div>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white border-t mt-12">
+      <div class="container mx-auto px-4 py-10">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div>
+            <div class="flex items-center gap-2 mb-3">
+              <div
+                class="w-10 h-10 bg-purple-600 text-white rounded flex items-center justify-center font-bold"
+              >
+                V
+              </div>
+              <div class="font-bold text-lg">Vipedeaf</div>
+            </div>
+            <p class="text-sm text-gray-600">
+              Book events, vendors, and services. Built with love — demo starter
+              for bookings & tickets.
+            </p>
+          </div>
+
+          <div>
+            <h4 class="font-semibold mb-2">Company</h4>
+            <ul class="space-y-1 text-sm text-gray-600">
+              <li><a href="#" class="hover:text-gray-900">About</a></li>
+              <li><a href="#" class="hover:text-gray-900">Careers</a></li>
+              <li><a href="#" class="hover:text-gray-900">Contact</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="font-semibold mb-2">Support</h4>
+            <ul class="space-y-1 text-sm text-gray-600">
+              <li><a href="#" class="hover:text-gray-900">Help center</a></li>
+              <li><a href="#" class="hover:text-gray-900">Cancellation</a></li>
+              <li><a href="#" class="hover:text-gray-900">Terms</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="font-semibold mb-2">Follow</h4>
+            <div class="flex gap-2">
+              <a
+                class="p-2 rounded bg-blue-600 text-white"
+                href="#"
+                aria-label="facebook"
+                >f</a
+              >
+              <a
+                class="p-2 rounded bg-sky-500 text-white"
+                href="#"
+                aria-label="twitter"
+                >t</a
+              >
+              <a
+                class="p-2 rounded bg-pink-600 text-white"
+                href="#"
+                aria-label="instagram"
+                >ig</a
+              >
+            </div>
+            <p class="text-xs text-gray-500 mt-3">© 2025 Vipedeaf</p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script>
+      // HERO slider
+      (function () {
+        const wrapper = document.querySelector("#hero > div");
+        const slides = wrapper.children;
+        const total = slides.length;
+        let idx = 0;
+        const dotsContainer = document.getElementById("heroDots");
+
+        function renderDots() {
+          dotsContainer.innerHTML = "";
+          for (let i = 0; i < total; i++) {
+            const d = document.createElement("span");
+            d.className =
+              "dot bg-white/60 " + (i === idx ? "ring-2 ring-white" : "");
+            d.style.opacity = i === idx ? "1" : "0.5";
+            d.style.margin = "0 4px";
+            d.addEventListener("click", () => {
+              go(i);
+            });
+            dotsContainer.appendChild(d);
+          }
+        }
+
+        function go(i) {
+          idx = (i + total) % total;
+          wrapper.style.transform = `translateX(-${idx * 100}%)`;
+          renderDots();
+        }
+        document
+          .getElementById("heroNext")
+          .addEventListener("click", () => go(idx + 1));
+        document
+          .getElementById("heroPrev")
+          .addEventListener("click", () => go(idx - 1));
+        renderDots();
+        // autoplay
+        setInterval(() => go(idx + 1), 4500);
+      })();
+
+      // MOBILE NAV toggle
+      document
+        .getElementById("mobileBtn")
+        .addEventListener("click", function () {
+          document.getElementById("mobileNav").classList.toggle("hidden");
+        });
+
+      // Testimonials simple carousel
+      (function () {
+        const container = document.getElementById("testimonials");
+        const blocks = Array.from(container.children);
+        let current = 0;
+        function show(i) {
+          blocks.forEach((b, idx) => b.classList.toggle("hidden", idx !== i));
+        }
+        document.getElementById("testNext").addEventListener("click", () => {
+          current = (current + 1) % blocks.length;
+          show(current);
+        });
+        document.getElementById("testPrev").addEventListener("click", () => {
+          current = (current - 1 + blocks.length) % blocks.length;
+          show(current);
+        });
+        // start with first visible
+        show(0);
+      })();
+    </script>
+  </body>
+</html>

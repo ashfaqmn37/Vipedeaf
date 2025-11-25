@@ -101,17 +101,19 @@
       <!-- LEFT IMAGE SLIDER -->
       <div class="relative w-full h-96 rounded-xl overflow-hidden">
         <!-- placeholder slider arrows -->
-        <img id="sliderImg" class="w-full h-full object-cover" />
+        <img id="sliderImg" class="w-full h-full object-contain bg-gray-100" />
 
         <button
           id="prev"
-          class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/70 px-3 py-1 rounded"
+          class="absolute left-3 top-1/2 -translate-y-1/2 bg-white/90 px-4 py-2 rounded-full shadow"
+          aria-label="previous"
         >
           ◄
         </button>
         <button
           id="next"
-          class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/70 px-3 py-1 rounded"
+          class="absolute right-3 top-1/2 -translate-y-1/2 bg-white/90 px-4 py-2 rounded-full shadow"
+          aria-label="next"
         >
           ►
         </button>
@@ -262,7 +264,9 @@
         </button>
 
         <h3 class="text-xl font-semibold mb-3">Select Tickets</h3>
-        <p class="text-sm text-gray-600 mb-4">Price: ₹1799 / ticket</p>
+        <p class="text-sm text-gray-600 mb-4">
+          Price: <span id="modalPrice"></span> / ticket
+        </p>
 
         <div id="ticketOptions" class="grid grid-cols-5 gap-2"></div>
 
@@ -342,6 +346,14 @@
         localStorage.getItem("eventLocation") || "MMRDA Grounds, Mumbai";
       document.getElementById("dPrice").innerText =
         localStorage.getItem("eventPrice") || "₹1799 onwards";
+      // keep modal price in sync with the event price (remove any 'onwards')
+      (function () {
+        const storedPrice = localStorage.getItem("eventPrice") || "₹1799";
+        const modalPriceEl = document.getElementById("modalPrice");
+        if (modalPriceEl) {
+          modalPriceEl.innerText = storedPrice.replace(/\s*onwards$/i, "");
+        }
+      })();
     </script>
   </body>
 </html>

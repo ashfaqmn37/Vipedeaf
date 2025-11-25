@@ -25,65 +25,116 @@
       </div>
     </header>
 
-    <!-- CONTENT -->
+    <!-- MAIN CONTENT -->
     <main class="max-w-md mx-auto px-4 py-10">
-      <div class="bg-white shadow-md rounded-xl p-6">
+      <div class="bg-white shadow-md rounded-xl p-6" id="bookingCard">
         <h2 class="text-lg font-semibold text-center mb-4">
           Your Booking Details
         </h2>
 
+        <!-- SITE LOGO (appears on PDF) -->
+        <div class="flex justify-center mb-3" id="ticketLogo">
+          <div
+            class="w-10 h-10 bg-purple-600 text-white rounded flex items-center justify-center font-bold"
+          >
+            V
+          </div>
+        </div>
+
         <!-- EVENT IMAGE -->
         <div class="flex justify-center mb-4">
           <img
+            id="eventImage"
             src="https://picsum.photos/200/250"
             class="w-28 h-28 rounded-lg object-cover"
-            id="eventImage"
           />
         </div>
 
-        <h3 class="text-xl font-bold text-center mb-1" id="eventName"></h3>
-        <p class="text-center text-sm text-gray-600 mb-1" id="eventVenue"></p>
-        <p class="text-center text-sm text-gray-600 mb-4" id="eventDate"></p>
+        <h3 id="eventName" class="text-xl font-bold text-center mb-1"></h3>
+        <p id="eventVenue" class="text-center text-sm text-gray-600 mb-1"></p>
+        <p id="eventDate" class="text-center text-sm text-gray-600 mb-4"></p>
 
-        <!-- QR + Booking Details -->
+        <!-- QR + BOOKING DETAILS BOX -->
         <div class="bg-gray-100 rounded-lg p-4 text-center">
           <img id="ticketQR" class="mx-auto w-40 h-40 mb-3" />
-
-          <p class="text-sm font-medium">
-            <span id="seatList"></span>
-          </p>
+          <p class="text-sm font-medium"><span id="seatList"></span></p>
 
           <p class="text-xs text-gray-600 mt-2">Booking ID:</p>
-          <p class="text-md font-bold tracking-wide" id="bookingID"></p>
+          <p id="bookingID" class="text-md font-bold tracking-wide"></p>
         </div>
 
         <p class="text-xs mt-4 text-center text-yellow-600">
           Scan QR at entry to gain access.
         </p>
 
+        <!-- PDF DOWNLOAD + BACK to HOME BUTTONS -->
+        <button
+          id="downloadPdf"
+          class="block mt-4 bg-purple-600 hover:bg-purple-700 text-white text-center py-3 rounded-lg font-semibold"
+        >
+          Download Ticket (PDF)
+        </button>
+
         <a
           href="index.html"
-          class="block mt-6 bg-purple-600 hover:bg-purple-700 text-white text-center py-3 rounded-lg font-semibold"
+          class="block mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 text-center py-3 rounded-lg font-semibold"
         >
           Back to Home
         </a>
       </div>
     </main>
+    <!-- include html2pdf (bundle includes html2canvas + jsPDF) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
 
+    <!-- LOAD DATA FROM LOCAL STORAGE + PDF GENERATION -->
     <script>
-      // Load ticket info
-      document.getElementById("eventName").innerText =
-        localStorage.getItem("bookingEvent") || "";
-      document.getElementById("eventVenue").innerText =
-        localStorage.getItem("bookingVenue") || "";
-      document.getElementById("eventDate").innerText =
-        localStorage.getItem("bookingDate") || "";
-      document.getElementById("seatList").innerText =
-        "Seats: " + (localStorage.getItem("bookingSeats") || "");
-      document.getElementById("bookingID").innerText =
-        localStorage.getItem("bookingID") || "";
-      document.getElementById("ticketQR").src =
-        localStorage.getItem("ticketQR") || "";
+      const bookingEvent = localStorage.getItem("bookingEvent") || "";
+      const bookingVenue = localStorage.getItem("bookingVenue") || "";
+      const bookingDate = localStorage.getItem("bookingDate") || "";
+      const bookingSeats = localStorage.getItem("bookingSeats") || "";
+      const bookingID = localStorage.getItem("bookingID") || "";
+      const ticketQR = localStorage.getItem("ticketQR") || "";
+      const eventImage =
+        localStorage.getItem("bookingImage") ||
+        document.getElementById("eventImage").src;
+      const bookingLogo = localStorage.getItem("bookingLogo") || "";
+
+      document.getElementById("eventName").innerText = bookingEvent;
+      document.getElementById("eventVenue").innerText = bookingVenue;
+      document.getElementById("eventDate").innerText = bookingDate;
+      document.getElementById("seatList").innerText = "Seats: " + bookingSeats;
+      document.getElementById("bookingID").innerText = bookingID;
+      document.getElementById("ticketQR").src = ticketQR;
+      document.getElementById("eventImage").src = eventImage;
+
+      // If a custom logo is provided in localStorage (data URL or image URL), use it
+      if (bookingLogo) {
+        const logoContainer = document.getElementById("ticketLogo");
+        if (logoContainer) {
+          logoContainer.innerHTML = `<img src="${bookingLogo}" class="w-10 h-10 rounded object-cover" alt="logo">`;
+        }
+      }
+
+      // PDF download handler
+      function generateTicketPDF() {
+        const card = document.getElementById("bookingCard");
+        const filename = bookingID
+          ? `ticket_${bookingID}.pdf`
+          : `ticket_${Date.now()}.pdf`;
+        const opt = {
+          margin: 0.4,
+          filename: filename,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true },
+          jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+        };
+
+        // produce PDF from the booking card element
+        html2pdf().set(opt).from(card).save();
+      }
+
+      const pdfBtn = document.getElementById("downloadPdf");
+      if (pdfBtn) pdfBtn.addEventListener("click", generateTicketPDF);
     </script>
   </body>
 </html>

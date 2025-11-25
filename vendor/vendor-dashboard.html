@@ -8,210 +8,159 @@
   </head>
 
   <body class="bg-gray-100">
-    <!-- NAVBAR -->
-    <header class="bg-white shadow-sm">
-      <div
-        class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between"
-      >
+    <!-- TOP NAVBAR -->
+    <header class="bg-white shadow-sm border-b">
+      <div class="flex items-center justify-between px-6 h-16">
         <div class="flex items-center gap-2">
           <div class="bg-purple-600 text-white font-bold px-2 py-1 rounded">
             V
           </div>
           <span class="font-semibold text-lg">Vipedeaf Vendor</span>
         </div>
-        <button
-          onclick="logout()"
-          class="text-sm text-red-600 hover:text-red-800"
-        >
-          Logout
-        </button>
+
+        <!-- SEARCH BAR -->
+        <div class="hidden md:block flex-1 max-w-md mx-4">
+          <input
+            type="text"
+            placeholder="Search..."
+            class="w-full border rounded-lg px-4 py-2 text-sm focus:outline-purple-600"
+          />
+        </div>
+
+        <!-- PROFILE -->
+        <div class="flex items-center gap-3">
+          <button
+            class="hidden md:block bg-gray-100 px-4 py-2 rounded-lg text-sm"
+          >
+            Notifications
+          </button>
+
+          <img
+            src="https://i.pravatar.cc/40"
+            class="w-9 h-9 rounded-full border"
+            alt="profile"
+          />
+        </div>
       </div>
     </header>
 
-    <div class="flex mt-6 max-w-7xl mx-auto">
+    <!-- MAIN WRAPPER -->
+    <div class="flex">
       <!-- SIDEBAR -->
-      <aside class="w-60 bg-white shadow rounded-lg p-4 h-fit">
-        <nav class="space-y-2 text-sm">
-          <button
-            class="block w-full text-left py-2 px-3 rounded bg-purple-600 text-white"
+      <aside class="w-64 min-h-screen bg-white shadow-md p-4">
+        <nav class="space-y-2 text-sm font-medium">
+          <a class="block px-4 py-2 rounded bg-purple-600 text-white"
+            >Dashboard</a
           >
-            Dashboard
-          </button>
-          <button
-            class="block w-full text-left py-2 px-3 hover:bg-gray-200"
-            onclick="showEdit()"
+          <a class="block px-4 py-2 rounded hover:bg-gray-100" href="#"
+            >Edit Event Details</a
           >
-            Edit Event Details
-          </button>
           <a
+            class="block px-4 py-2 rounded hover:bg-gray-100"
             href="vendor-banner.html"
-            class="block w-full text-left py-2 px-3 hover:bg-gray-200"
             >Change Hero Banner</a
           >
-
-          <button
-            class="block w-full text-left py-2 px-3 hover:bg-gray-200"
-            onclick="showPrice()"
+          <a class="block px-4 py-2 rounded hover:bg-gray-100" href="#"
+            >Upload Gallery</a
           >
-            Update Ticket Price
-          </button>
+          <a class="block px-4 py-2 rounded hover:bg-gray-100" href="#"
+            >Update Pricing</a
+          >
+          <a
+            class="block px-4 py-2 rounded hover:bg-gray-100 text-red-600"
+            href="vendor-login.html"
+            >Logout</a
+          >
         </nav>
       </aside>
 
-      <!-- MAIN CONTENT -->
-      <main class="flex-1 ml-6">
-        <!-- EVENT CARD -->
-        <div class="bg-white shadow rounded-lg p-6">
-          <h2 class="text-xl font-semibold mb-4">Your Event</h2>
+      <!-- DASHBOARD CONTENT -->
+      <main class="flex-1 p-6">
+        <h2 class="text-2xl font-semibold mb-6">Dashboard Overview</h2>
 
+        <!-- STAT CARDS -->
+        <div class="grid md:grid-cols-3 gap-6 mb-6">
+          <div class="bg-white p-6 rounded-lg shadow">
+            <p class="text-sm text-gray-500">Total Bookings</p>
+            <h3 class="text-2xl font-bold">124</h3>
+          </div>
+
+          <div class="bg-white p-6 rounded-lg shadow">
+            <p class="text-sm text-gray-500">Revenue</p>
+            <h3 class="text-2xl font-bold">₹42,750</h3>
+          </div>
+
+          <div class="bg-white p-6 rounded-lg shadow">
+            <p class="text-sm text-gray-500">Pending Approvals</p>
+            <h3 class="text-2xl font-bold">03</h3>
+          </div>
+        </div>
+
+        <!-- CHART PLACEHOLDER -->
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+          <h3 class="font-semibold mb-3">Sales Overview</h3>
+          <div class="h-64 flex items-center justify-center text-gray-400">
+            [Chart Placeholder – Add Chart.js Later]
+          </div>
+        </div>
+
+        <!-- EVENT DETAILS CARD -->
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h3 class="font-semibold mb-4">Your Event</h3>
           <img
             id="heroPreview"
             class="w-full h-56 object-cover rounded-lg mb-4"
-            src=""
+            src="https://picsum.photos/900/500"
           />
 
           <table class="text-sm w-full">
             <tbody>
               <tr>
-                <td class="font-medium py-1">Name</td>
-                <td id="evName"></td>
+                <td class="font-medium py-1">Name:</td>
+                <td id="evName">Not set</td>
               </tr>
               <tr>
-                <td class="font-medium py-1">Date</td>
-                <td id="evDate"></td>
+                <td class="font-medium py-1">Date:</td>
+                <td id="evDate">Not set</td>
               </tr>
               <tr>
-                <td class="font-medium py-1">Time</td>
-                <td id="evTime"></td>
+                <td class="font-medium py-1">Time:</td>
+                <td id="evTime">Not set</td>
               </tr>
               <tr>
-                <td class="font-medium py-1">Duration</td>
-                <td id="evDuration"></td>
+                <td class="font-medium py-1">Location:</td>
+                <td id="evLocation">Not set</td>
               </tr>
               <tr>
-                <td class="font-medium py-1">Language</td>
-                <td id="evLang"></td>
-              </tr>
-              <tr>
-                <td class="font-medium py-1">Category</td>
-                <td id="evCategory"></td>
-              </tr>
-              <tr>
-                <td class="font-medium py-1">Location</td>
-                <td id="evLocation"></td>
-              </tr>
-              <tr>
-                <td class="font-medium py-1">Price</td>
-                <td id="evPrice"></td>
+                <td class="font-medium py-1">Price:</td>
+                <td id="evPrice">₹0</td>
               </tr>
             </tbody>
           </table>
-
           <button
-            onclick="showEdit()"
-            class="mt-5 bg-purple-600 text-white py-2 px-4 rounded-lg"
+            class="mt-5 bg-purple-600 text-white px-4 py-2 rounded-lg"
+            onclick="alert('Edit Event Clicked!')"
           >
-            Edit Details
+            Edit Event
           </button>
         </div>
       </main>
     </div>
 
-    <!-- EDIT MODAL -->
-    <div
-      id="editModal"
-      class="hidden fixed inset-0 bg-black/50 flex justify-center items-center"
-    >
-      <div class="bg-white rounded-lg p-6 w-[400px]">
-        <h3 class="text-lg font-semibold mb-4">Edit Event Details</h3>
-
-        <input id="inpName" class="input" placeholder="Event Name" />
-        <input id="inpDate" class="input" placeholder="Date" />
-        <input id="inpTime" class="input" placeholder="Time" />
-        <input id="inpDuration" class="input" placeholder="Duration" />
-        <input id="inpLang" class="input" placeholder="Language" />
-        <input id="inpCat" class="input" placeholder="Category" />
-        <input id="inpLoc" class="input" placeholder="Location" />
-        <input id="inpPrice" class="input" placeholder="Price" />
-
-        <button onclick="saveDetails()" class="btn-primary w-full mt-4">
-          Save
-        </button>
-        <button onclick="closeEdit()" class="w-full mt-2 text-gray-500">
-          Cancel
-        </button>
-      </div>
-    </div>
-
     <script>
-      function loadData() {
-        document.getElementById("evName").innerText =
-          localStorage.getItem("eventName") || "Not set";
-        document.getElementById("evDate").innerText =
-          localStorage.getItem("eventDate") || "Not set";
-        document.getElementById("evTime").innerText =
-          localStorage.getItem("eventTime") || "Not set";
-        document.getElementById("evDuration").innerText =
-          localStorage.getItem("eventDuration") || "Not set";
-        document.getElementById("evLang").innerText =
-          localStorage.getItem("eventLang") || "Not set";
-        document.getElementById("evCategory").innerText =
-          localStorage.getItem("eventCategory") || "Not set";
-        document.getElementById("evLocation").innerText =
-          localStorage.getItem("eventLocation") || "Not set";
-        document.getElementById("evPrice").innerText =
-          localStorage.getItem("eventPrice") || "₹0";
-        document.getElementById("heroPreview").src =
-          localStorage.getItem("eventHeroImage") ||
-          "https://picsum.photos/900/500";
-      }
-      loadData();
-
-      function showEdit() {
-        document.getElementById("editModal").classList.remove("hidden");
-        inpName.value = localStorage.getItem("eventName");
-        inpDate.value = localStorage.getItem("eventDate");
-        inpTime.value = localStorage.getItem("eventTime");
-        inpDuration.value = localStorage.getItem("eventDuration");
-        inpLang.value = localStorage.getItem("eventLang");
-        inpCat.value = localStorage.getItem("eventCategory");
-        inpLoc.value = localStorage.getItem("eventLocation");
-        inpPrice.value = localStorage.getItem("eventPrice");
-      }
-      function closeEdit() {
-        document.getElementById("editModal").classList.add("hidden");
-      }
-      function saveDetails() {
-        localStorage.setItem("eventName", inpName.value);
-        localStorage.setItem("eventDate", inpDate.value);
-        localStorage.setItem("eventTime", inpTime.value);
-        localStorage.setItem("eventDuration", inpDuration.value);
-        localStorage.setItem("eventLang", inpLang.value);
-        localStorage.setItem("eventCategory", inpCat.value);
-        localStorage.setItem("eventLocation", inpLoc.value);
-        localStorage.setItem("eventPrice", inpPrice.value);
-        closeEdit();
-        loadData();
-      }
-      function logout() {
-        window.location.href = "vendor-login.html";
-      }
+      // AUTO LOAD EVENT IF AVAILABLE
+      document.getElementById("evName").innerText =
+        localStorage.getItem("eventName") || "Not set";
+      document.getElementById("evDate").innerText =
+        localStorage.getItem("eventDate") || "Not set";
+      document.getElementById("evTime").innerText =
+        localStorage.getItem("eventTime") || "Not set";
+      document.getElementById("evLocation").innerText =
+        localStorage.getItem("eventLocation") || "Not set";
+      document.getElementById("evPrice").innerText =
+        localStorage.getItem("eventPrice") || "₹0";
+      document.getElementById("heroPreview").src =
+        localStorage.getItem("eventBanner") || "https://picsum.photos/900/500";
     </script>
-
-    <style>
-      .input {
-        width: 100%;
-        margin-bottom: 10px;
-        padding: 8px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-      }
-      .btn-primary {
-        background: purple;
-        color: white;
-        padding: 10px;
-        border-radius: 6px;
-      }
-    </style>
   </body>
 </html>

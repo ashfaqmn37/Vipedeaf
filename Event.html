@@ -124,125 +124,18 @@
       <section class="mt-10">
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-2xl font-semibold">Events</h2>
-          <a href="#" class="text-sm text-purple-600 hover:underline"
+          <a
+            href="all-events.html"
+            class="text-sm text-purple-600 hover:underline"
             >See All ›</a
           >
         </div>
 
         <div
+          id="eventsGrid"
           class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"
         >
-          <!-- card x5 -->
-          <article class="bg-white rounded-xl overflow-hidden card-shadow">
-            <img
-              src="https://picsum.photos/300/420?random=1"
-              class="w-full h-56 object-cover"
-            />
-            <div class="p-4">
-              <div class="flex items-center justify-between">
-                <h3 class="font-semibold">Predator: Badlands</h3>
-                <span class="text-xs bg-red-500 text-white px-2 py-1 rounded"
-                  >PROMOTED</span
-                >
-              </div>
-              <p class="text-sm text-gray-500 mt-2">8.8/10 · 4.7K votes</p>
-              <div class="mt-3 flex gap-2">
-                <button
-                  class="flex-1 bg-purple-600 text-white px-3 py-2 rounded"
-                >
-                  Book
-                </button>
-                <button class="border px-3 py-2 rounded">Details</button>
-              </div>
-            </div>
-          </article>
-
-          <article class="bg-white rounded-xl overflow-hidden card-shadow">
-            <a href="Event-details.html">
-              <img
-                src="https://picsum.photos/300/420?random=2"
-                class="w-full h-56 object-cover"
-              />
-              <div class="p-4">
-                <h3 class="font-semibold">Deaf Talent Show - Mumbai</h3>
-                <p class="text-sm text-gray-500 mt-2">₹1799 onwards</p>
-                <div class="mt-3 flex gap-2">
-                  <p class="text-sm text-gray-500 mt-2">
-                    MMRDA Grounds, Mumbai
-                  </p>
-                  <!-- <button	
-                  onclick="location.href='Event-details.html'"
-                  class="flex-1 bg-purple-600 text-white px-3 py-2 rounded"
-                >
-                  Book
-                </button> -->
-                  <!-- <button
-                    onclick="location.href='Event-details.html'"
-                    class="border px-3 py-2 rounded"
-                  >
-                    Details
-                  </button> -->
-                </div>
-              </div>
-            </a>
-          </article>
-
-          <article class="bg-white rounded-xl overflow-hidden card-shadow">
-            <img
-              src="https://picsum.photos/300/420?random=3"
-              class="w-full h-56 object-cover"
-            />
-            <div class="p-4">
-              <h3 class="font-semibold">Haq</h3>
-              <p class="text-sm text-gray-500 mt-2">8.9/10 · 2.7K votes</p>
-              <div class="mt-3 flex gap-2">
-                <button
-                  class="flex-1 bg-purple-600 text-white px-3 py-2 rounded"
-                >
-                  Book
-                </button>
-                <button class="border px-3 py-2 rounded">Details</button>
-              </div>
-            </div>
-          </article>
-
-          <article class="bg-white rounded-xl overflow-hidden card-shadow">
-            <img
-              src="https://picsum.photos/300/420?random=4"
-              class="w-full h-56 object-cover"
-            />
-            <div class="p-4">
-              <h3 class="font-semibold">Laalo</h3>
-              <p class="text-sm text-gray-500 mt-2">9.5/10 · 8.8K votes</p>
-              <div class="mt-3 flex gap-2">
-                <button
-                  class="flex-1 bg-purple-600 text-white px-3 py-2 rounded"
-                >
-                  Book
-                </button>
-                <button class="border px-3 py-2 rounded">Details</button>
-              </div>
-            </div>
-          </article>
-
-          <article class="bg-white rounded-xl overflow-hidden card-shadow">
-            <img
-              src="https://picsum.photos/300/420?random=5"
-              class="w-full h-56 object-cover"
-            />
-            <div class="p-4">
-              <h3 class="font-semibold">The Taj Story</h3>
-              <p class="text-sm text-gray-500 mt-2">9/10 · 10.4K votes</p>
-              <div class="mt-3 flex gap-2">
-                <button
-                  class="flex-1 bg-purple-600 text-white px-3 py-2 rounded"
-                >
-                  Book
-                </button>
-                <button class="border px-3 py-2 rounded">Details</button>
-              </div>
-            </div>
-          </article>
+          <!-- dynamic event cards will be rendered here from localStorage.events -->
         </div>
       </section>
 
@@ -519,6 +412,135 @@
         });
         // start with first visible
         show(0);
+      })();
+    </script>
+    <script>
+      // render events list saved by vendors (if any) — show only vendor events
+      (function () {
+        const grid = document.getElementById("eventsGrid");
+        if (!grid) return;
+        let events = [];
+        try {
+          events = JSON.parse(localStorage.getItem("events") || "[]");
+        } catch (e) {
+          events = [];
+        }
+
+        // sort by date/time if available (upcoming first), otherwise by creation order
+        events.sort((a, b) => {
+          const da = a.date ? Date.parse(a.date) : 0;
+          const db = b.date ? Date.parse(b.date) : 0;
+          if (da && db) return da - db;
+          return 0;
+        });
+
+        if (!events.length) {
+          grid.innerHTML = `
+            <div class="col-span-full text-center text-gray-500 py-16">
+              No events found. Vendors can add events from the Vendor Dashboard.
+            </div>`;
+          return;
+        }
+
+        grid.innerHTML = events
+          .map((ev) => {
+            const img = ev.banner || "https://picsum.photos/300/420?random=2";
+            const title = ev.name || "Untitled Event";
+            const price = ev.price || "";
+            const location = ev.location || "";
+            // each card will set the single-event keys then navigate to details
+            return `
+            <article class="bg-white rounded-xl overflow-hidden card-shadow">
+              <a href="#" data-id="${ev.id}" class="event-card">
+                <img src="${img}" class="w-full h-56 object-cover" />
+                <div class="p-4">
+                  <h3 class="font-semibold">${title}</h3>
+                  <p class="text-sm text-gray-500 mt-2">${price}</p>
+                  <div class="mt-3">
+                    <p class="text-sm text-gray-500 mt-2">${location}</p>
+                  </div>
+                </div>
+              </a>
+            </article>
+          `;
+          })
+          .join("\n");
+
+        // attach click handlers to set storage keys for the clicked event
+        Array.from(grid.querySelectorAll(".event-card")).forEach((el) => {
+          el.addEventListener("click", function (e) {
+            e.preventDefault();
+            const id = this.getAttribute("data-id");
+            const ev = events.find((x) => x.id === id);
+            if (!ev) return;
+            // set keys used by Event-details.html
+            localStorage.setItem("eventName", ev.name || "");
+            localStorage.setItem("eventDate", ev.date || "");
+            localStorage.setItem("eventTime", ev.time || "");
+            localStorage.setItem("eventDuration", ev.duration || "");
+            localStorage.setItem("eventAge", ev.age || "");
+            localStorage.setItem("eventLang", ev.lang || "");
+            localStorage.setItem("eventCategory", ev.category || "");
+            localStorage.setItem("eventLocation", ev.location || "");
+            localStorage.setItem("eventPrice", ev.price || "");
+            if (ev.banner) {
+              localStorage.setItem("eventBanner", ev.banner);
+              localStorage.setItem(
+                "eventSliderImages",
+                JSON.stringify([ev.banner])
+              );
+            }
+            // navigate to details
+            location.href = "Event-details.html";
+          });
+        });
+      })();
+    </script>
+    <script>
+      // populate special event card from localStorage (keeps listing in sync with vendor dashboard)
+      (function () {
+        const titleEl = document.getElementById("cardTitle");
+        const priceEl = document.getElementById("cardPrice");
+        const locEl = document.getElementById("cardLocation");
+        const imgEl = document.getElementById("cardImg");
+
+        if (!titleEl) return;
+
+        const storedName = localStorage.getItem("eventName");
+        const storedPrice = localStorage.getItem("eventPrice");
+        const storedLoc = localStorage.getItem("eventLocation");
+        const storedImg =
+          localStorage.getItem("eventBanner") ||
+          localStorage.getItem("eventSliderImages");
+
+        if (storedName) titleEl.innerText = storedName;
+        if (storedPrice) priceEl.innerText = storedPrice;
+        if (storedLoc) locEl.innerText = storedLoc;
+
+        // if eventBanner is stored as a single URL, use it; if eventSliderImages (JSON array) use first
+        try {
+          if (storedImg) {
+            let src = storedImg;
+            // try parse if it's JSON array
+            try {
+              const arr = JSON.parse(storedImg);
+              if (Array.isArray(arr) && arr.length > 0) src = arr[0];
+            } catch (e) {
+              // not JSON, keep storedImg as URL
+            }
+            imgEl.src = src;
+          }
+        } catch (e) {
+          console.error(e);
+        }
+
+        // ensure clicking the card keeps the same event data in localStorage (helps if listing sets different keys)
+        const link = document.getElementById("cardLink");
+        if (link) {
+          link.addEventListener("click", function () {
+            // (no-op here — vendor page should already set storage). We keep keys as-is to avoid accidental overwrites.
+          });
+        }
       })();
     </script>
   </body>

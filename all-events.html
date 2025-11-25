@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>All Events - Vipedeaf</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-sm sticky top-0 z-30">
+      <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex items-center gap-4">
+            <a href="index.html" class="flex items-center gap-2">
+              <div
+                class="w-10 h-10 bg-purple-600 text-white rounded flex items-center justify-center font-bold"
+              >
+                V
+              </div>
+              <span class="font-bold text-lg">Vipedeaf</span>
+            </a>
+            <h2 class="text-lg">All Events</h2>
+          </div>
+          <div class="flex items-center gap-4">
+            <a href="Event.html" class="text-sm text-gray-600 hover:underline"
+              >Events</a
+            >
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-semibold">All Events</h1>
+        <div class="text-sm text-gray-600">Showing vendor-created events</div>
+      </div>
+
+      <div
+        id="allList"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+      ></div>
+    </main>
+
+    <footer class="bg-white border-t mt-12">
+      <div
+        class="container mx-auto px-4 py-10 text-center text-sm text-gray-500"
+      >
+        © 2025 Vipedeaf
+      </div>
+    </footer>
+
+    <script>
+      (function () {
+        const container = document.getElementById("allList");
+        let events = [];
+        try {
+          events = JSON.parse(localStorage.getItem("events") || "[]");
+        } catch (e) {
+          events = [];
+        }
+
+        // sort by date/time if possible
+        events.sort((a, b) => {
+          const da = a.date ? Date.parse(a.date) : 0;
+          const db = b.date ? Date.parse(b.date) : 0;
+          if (da && db) return da - db;
+          if (da) return -1;
+          if (db) return 1;
+          return 0;
+        });
+
+        if (!events.length) {
+          container.innerHTML =
+            '<div class="col-span-full text-center text-gray-500 py-16">No events found. Add events from Vendor Dashboard.</div>';
+          return;
+        }
+
+        container.innerHTML = events
+          .map((ev) => {
+            const img = ev.banner || "https://picsum.photos/400/260?random=1";
+            const title = ev.name || "Untitled Event";
+            const date = ev.date || "";
+            const time = ev.time || "";
+            const price = ev.price || "";
+            const location = ev.location || "";
+            return `
+            <article class="bg-white rounded-xl overflow-hidden shadow">
+              <img src="${img}" class="w-full h-44 object-cover" />
+              <div class="p-4">
+                <h3 class="font-semibold text-lg">${title}</h3>
+                <p class="text-sm text-gray-600 mt-1">${date} ${
+              time ? " • " + time : ""
+            }</p>
+                <p class="text-sm text-gray-600 mt-1">${location}</p>
+                <div class="mt-3 flex items-center justify-between">
+                  <div class="text-sm font-medium">${price}</div>
+                  <div>
+                    <button data-id="${
+                      ev.id
+                    }" class="viewBtn bg-purple-600 text-white px-3 py-1 rounded">View</button>
+                  </div>
+                </div>
+              </div>
+            </article>
+          `;
+          })
+          .join("");
+
+        // attach handlers
+        Array.from(document.getElementsByClassName("viewBtn")).forEach(
+          (btn) => {
+            btn.addEventListener("click", function () {
+              const id = this.getAttribute("data-id");
+              const ev = events.find((x) => x.id === id);
+              if (!ev) return;
+              // set single-event keys
+              localStorage.setItem("eventName", ev.name || "");
+              localStorage.setItem("eventDate", ev.date || "");
+              localStorage.setItem("eventTime", ev.time || "");
+              localStorage.setItem("eventDuration", ev.duration || "");
+              localStorage.setItem("eventAge", ev.age || "");
+              localStorage.setItem("eventLang", ev.lang || "");
+              localStorage.setItem("eventCategory", ev.category || "");
+              localStorage.setItem("eventLocation", ev.location || "");
+              localStorage.setItem("eventPrice", ev.price || "");
+              if (ev.banner) {
+                localStorage.setItem("eventBanner", ev.banner);
+                localStorage.setItem(
+                  "eventSliderImages",
+                  JSON.stringify([ev.banner])
+                );
+              }
+              location.href = "Event-details.html";
+            });
+          }
+        );
+      })();
+    </script>
+  </body>
+</html>

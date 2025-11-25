@@ -1,3 +1,7 @@
+  <!--
+    Script functionality moved below and consolidated to avoid duplicate definitions
+    and to provide a consistent Save/Create/Edit/Delete flow for vendor events.
+  -->
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -48,11 +52,19 @@
               class="hidden"
               accept="image/*"
             />
-            <div onclick="document.getElementById('eventImage').click()">
+            <div
+              onclick="document.getElementById('eventImage').click()"
+              id="imageDropArea"
+            >
               <p class="text-gray-600">Click to upload image</p>
               <p class="text-xs text-gray-400">
                 (Recommended 1200x600 JPG/PNG)
               </p>
+              <img
+                id="eventBannerPreview"
+                class="mx-auto mt-3 rounded-md hidden"
+                style="max-width: 260px; max-height: 140px"
+              />
             </div>
           </div>
         </div>
@@ -164,30 +176,264 @@
           />
         </div>
 
-        <button
-          type="button"
-          id="saveBtn"
-          class="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold"
-        >
-          Save Event Details
-        </button>
-      </form>
-    </main>
+        <div class="flex gap-2">
+    <div class="flex gap-2">
+      <button
+        type="button"
+        id="saveBtn"
+        class="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-lg font-semibold"
+      >
+        Save Event Details
+      </button>
+
+      <button
+        type="button"
+        id="newBtn"
+        class="flex-none bg-white border border-gray-200 text-gray-700 py-3 px-4 rounded-lg"
+      >
+        Create New
+      </button>
+    </div>
+
+    <div id="savedEvents" class="mt-6"></div>
 
     <script>
-      document.getElementById("saveBtn").onclick = function () {
-        localStorage.setItem("eventName", eventName.value);
-        localStorage.setItem("eventDate", eventDate.value);
-        localStorage.setItem("eventTime", eventTime.value);
-        localStorage.setItem("eventDuration", eventDuration.value);
-        localStorage.setItem("eventAge", eventAge.value);
-        localStorage.setItem("eventLang", eventLang.value);
-        localStorage.setItem("eventCategory", eventCategory.value);
-        localStorage.setItem("eventLocation", eventLocation.value);
-        localStorage.setItem("eventPrice", eventPrice.value);
+      // Consolidated vendor-home script
+      let editingId = null;
+      let storedBanner = localStorage.getItem('eventBanner') || '';
 
-        alert("✅ Event details saved!");
+      const fileInput = document.getElementById('eventImage');
+      const preview = document.getElementById('eventBannerPreview');
+      const saveBtn = document.getElementById('saveBtn');
+      const newBtn = document.getElementById('newBtn');
+
+      function showPreview(url) {
+        if (!preview) return;
+        if (url) {
+          preview.src = url;
+          preview.classList.remove('hidden');
+        } else {
+          preview.src = '';
+          preview.classList.add('hidden');
+        }
+      }
+
+      if (storedBanner) showPreview(storedBanner);
+
+      if (fileInput) {
+        fileInput.addEventListener('change', function (e) {
+          const file = e.target.files && e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = function (ev) {
+            const dataUrl = ev.target.result;
+            try {
+              storedBanner = dataUrl;
+              localStorage.setItem('eventBanner', dataUrl);
+              localStorage.setItem('eventSliderImages', JSON.stringify([dataUrl]));
+              showPreview(dataUrl);
+              renderSavedEvents();
+            } catch (err) {
+              console.error('Error saving image to localStorage:', err);
+              alert('⚠️ Could not save image to localStorage (maybe too large). Try a smaller image.');
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // Save handler
+      saveBtn.addEventListener('click', function () {
+        try {
+          const raw = localStorage.getItem('events') || '[]';
+          const list = JSON.parse(raw);
+
+          if (editingId) {
+            const idx = list.findIndex(e => e.id === editingId);
+            if (idx !== -1) {
+              const ev = list[idx];
+              ev.name = document.getElementById('eventName').value || ev.name || 'Untitled Event';
+              ev.date = document.getElementById('eventDate').value || ev.date || '';
+              ev.time = document.getElementById('eventTime').value || ev.time || '';
+              ev.duration = document.getElementById('eventDuration').value || ev.duration || '';
+              ev.age = document.getElementById('eventAge').value || ev.age || '';
+              ev.lang = document.getElementById('eventLang').value || ev.lang || '';
+              ev.category = document.getElementById('eventCategory').value || ev.category || '';
+              ev.location = document.getElementById('eventLocation').value || ev.location || '';
+              ev.price = document.getElementById('eventPrice').value || ev.price || '';
+              ev.banner = storedBanner || ev.banner || '';
+              list[idx] = ev;
+            }
+          } else {
+            const ev = {
+              id: `evt_${Date.now()}`,
+              name: document.getElementById('eventName').value || 'Untitled Event',
+              date: document.getElementById('eventDate').value || '',
+              time: document.getElementById('eventTime').value || '',
+              duration: document.getElementById('eventDuration').value || '',
+              age: document.getElementById('eventAge').value || '',
+              lang: document.getElementById('eventLang').value || '',
+              category: document.getElementById('eventCategory').value || '',
+              location: document.getElementById('eventLocation').value || '',
+              price: document.getElementById('eventPrice').value || '',
+              banner: storedBanner || ''
+            };
+            list.unshift(ev);
+          }
+
+          // Persist and update compatibility single keys
+          localStorage.setItem('events', JSON.stringify(list));
+          const latest = list[0] || {};
+          localStorage.setItem('eventName', latest.name || '');
+          localStorage.setItem('eventDate', latest.date || '');
+          localStorage.setItem('eventTime', latest.time || '');
+          localStorage.setItem('eventDuration', latest.duration || '');
+          localStorage.setItem('eventAge', latest.age || '');
+          localStorage.setItem('eventLang', latest.lang || '');
+          localStorage.setItem('eventCategory', latest.category || '');
+          localStorage.setItem('eventLocation', latest.location || '');
+          localStorage.setItem('eventPrice', latest.price || '');
+
+          editingId = null;
+          clearForm();
+          renderSavedEvents();
+          alert('✅ Event saved to list! Open Events page to see it.');
+        } catch (e) {
+          console.error(e);
+          alert('⚠️ Could not save event. See console.');
+        }
+      });
+
+      // Create New clears form and resets editing state
+      newBtn.addEventListener('click', function () {
+        editingId = null;
+        clearForm();
+      });
+
+      // Render saved events using DOM nodes (avoids template-escaping issues)
+      function renderSavedEvents() {
+        const container = document.getElementById('savedEvents');
+        if (!container) return;
+        const listRaw = localStorage.getItem('events') || '[]';
+        let list = [];
+        try { list = JSON.parse(listRaw); } catch (e) { list = []; }
+
+        if (!list.length) {
+          container.innerHTML = '';
+          return;
+        }
+
+        container.innerHTML = '';
+        const heading = document.createElement('h3');
+        heading.className = 'text-lg font-semibold mb-3';
+        heading.innerText = 'Saved Events';
+        container.appendChild(heading);
+
+        const grid = document.createElement('div');
+        grid.className = 'grid md:grid-cols-2 gap-4';
+
+        list.forEach(ev => {
+          const card = document.createElement('div');
+          card.className = 'bg-white p-3 rounded-lg shadow flex gap-3 items-center';
+          const img = document.createElement('img');
+          img.src = ev.banner || 'https://picsum.photos/120/80';
+          img.className = 'w-24 h-16 object-cover rounded';
+          const info = document.createElement('div');
+          info.className = 'flex-1';
+          const title = document.createElement('div');
+          title.className = 'font-semibold';
+          title.innerText = ev.name;
+          const meta = document.createElement('div');
+          meta.className = 'text-xs text-gray-500';
+          meta.innerText = (ev.date || '') + (ev.location ? ' • ' + ev.location : '');
+          info.appendChild(title);
+          info.appendChild(meta);
+
+          const actions = document.createElement('div');
+          actions.className = 'flex flex-col gap-2';
+          const editBtn = document.createElement('button');
+          editBtn.className = 'text-sm text-blue-600';
+          editBtn.innerText = 'Edit';
+          editBtn.onclick = () => editEvent(ev.id);
+          const delBtn = document.createElement('button');
+          delBtn.className = 'text-sm text-red-600';
+          delBtn.innerText = 'Delete';
+          delBtn.onclick = () => deleteEvent(ev.id);
+          actions.appendChild(editBtn);
+          actions.appendChild(delBtn);
+
+          card.appendChild(img);
+          card.appendChild(info);
+          card.appendChild(actions);
+          grid.appendChild(card);
+        });
+
+        container.appendChild(grid);
+      }
+
+      // Delete event
+      window.deleteEvent = function (id) {
+        try {
+          const listRaw = localStorage.getItem('events') || '[]';
+          let list = JSON.parse(listRaw);
+          list = list.filter(e => e.id !== id);
+          localStorage.setItem('events', JSON.stringify(list));
+          renderSavedEvents();
+          alert('✅ Event removed');
+        } catch (e) {
+          console.error(e);
+        }
       };
+
+      // Edit event
+      window.editEvent = function (id) {
+        try {
+          const listRaw = localStorage.getItem('events') || '[]';
+          const list = JSON.parse(listRaw);
+          const ev = list.find(x => x.id === id);
+          if (!ev) return;
+          document.getElementById('eventName').value = ev.name || '';
+          document.getElementById('eventDate').value = ev.date || '';
+          document.getElementById('eventTime').value = ev.time || '';
+          document.getElementById('eventDuration').value = ev.duration || '';
+          document.getElementById('eventAge').value = ev.age || '';
+          document.getElementById('eventLang').value = ev.lang || '';
+          document.getElementById('eventCategory').value = ev.category || '';
+          document.getElementById('eventLocation').value = ev.location || '';
+          document.getElementById('eventPrice').value = ev.price || '';
+          if (ev.banner) {
+            storedBanner = ev.banner;
+            showPreview(ev.banner);
+            localStorage.setItem('eventBanner', ev.banner);
+          } else {
+            storedBanner = '';
+            showPreview('');
+            localStorage.removeItem('eventBanner');
+          }
+          editingId = id;
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (e) {
+          console.error(e);
+        }
+      };
+
+      function clearForm() {
+        document.getElementById('eventName').value = '';
+        document.getElementById('eventDate').value = '';
+        document.getElementById('eventTime').value = '';
+        document.getElementById('eventDuration').value = '';
+        document.getElementById('eventAge').value = '';
+        document.getElementById('eventLang').value = '';
+        document.getElementById('eventCategory').value = '';
+        document.getElementById('eventLocation').value = '';
+        document.getElementById('eventPrice').value = '';
+        storedBanner = '';
+        showPreview('');
+        localStorage.removeItem('eventBanner');
+      }
+
+      // Initial render
+      renderSavedEvents();
     </script>
   </body>
 </html>
